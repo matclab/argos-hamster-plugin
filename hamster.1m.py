@@ -9,7 +9,7 @@ class Version(Enum):
 
 ##### Custommization
 # Shall we use an icon instead of the current activity in the
-USE_ICON=True
+USE_ICON=False
 
 # Choose your hamster version
 # ⚠ hamster 1.04 doesn't leave when the window to add new activity
