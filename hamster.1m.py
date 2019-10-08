@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 from enum import Enum, auto
@@ -8,11 +8,11 @@ class Version(Enum):
 
 
 ##### Custommization
-# Shall we use an icon instead of the current activity in the 
+# Shall we use an icon instead of the current activity in the
 USE_ICON=False
 
 # Choose your hamster version
-# ⚠ hamster 1.04 doesn't leave when the window to add new activity 
+# ⚠ hamster 1.04 doesn't leave when the window to add new activity
 #   is closed and as such it will leave many backround processes.
 HAMSTER_VERSION  = Version.TWO
 # HAMSTER_VERSION : Version.ONE
@@ -109,7 +109,7 @@ class Hamster():
         if self.active:
             txt = " ".join(self.current_full.split(',')[0].split()[2:])
         else:
-            txt = self.current_activity 
+            txt = self.current_activity
         spaces = " " * (max(1, MENU_WIDTH-len(txt)))
         print(f"{begin}{txt}{spaces}{end}")
         if self.active:
@@ -141,7 +141,7 @@ class Hamster():
                 if l.startswith("------"):
                     break
             # Remove "in" de "min", remove empty hours and minutes, and spaces
-            fulltotal = ",".join(map(lambda x: x[:-2] 
+            fulltotal = ",".join(map(lambda x: x[:-2]
                                        .replace(" 0h","")\
                                        .replace(" 0m","")\
                                        .replace(" ",""),
