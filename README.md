@@ -3,7 +3,7 @@
 [Argos](https://github.com/p-e-w/argos) extension that works with [Hamster 
 time tracker](https://github.com/projecthamster/hamster)
 
-![Screenshot](img/screenshot.png)
+![Screenshot](img/screenshot.png) ![ScreenshotIcon](img/screenshot-icon.png)
 
 # Installation
 `make` will copy the plugin in ~/.config/argos
