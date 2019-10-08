@@ -9,7 +9,7 @@ class Version(Enum):
 
 ##### Custommization
 # Shall we use an icon instead of the current activity in the
-USE_ICON=False
+USE_ICON=True
 
 # Choose your hamster version
 # ⚠ hamster 1.04 doesn't leave when the window to add new activity
@@ -32,7 +32,7 @@ iconHeight = str(int(24 * scale))
 iconWidth = str(int(30 * scale))
 MENU_WIDTH =  18 # monospace chars
 
-if HAMSTER_VERSION is Version.ONE:
+if HAMSTER_VERSION is Version.TWO:
     ADD_ACTIVITY_CMD="hamster add" # For hamster 2+
 else:
     ADD_ACTIVITY_CMD="hamster" # For hamster 1.04
