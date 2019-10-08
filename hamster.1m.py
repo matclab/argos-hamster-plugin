@@ -1,14 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
+from enum import Enum, auto
+class Version(Enum):
+    ONE = auto()
+    TWO = auto()
 
 
 ##### Custommization
 # Shall we use an icon instead of the current activity in the 
 USE_ICON=False
 
-# Shall we add an "Add activity" link (for hamster 2+)
-ADD_ACTIVITY=False
+# Choose your hamster version
+# ⚠ hamster 1.04 doesn't leave when the window to add new activity 
+#   is closed and as such it will leave many backround processes.
+HAMSTER_VERSION  = Version.TWO
+# HAMSTER_VERSION : Version.ONE
 
 # How many days to look back in the past in order to get past activities
 DAYS=14
@@ -18,10 +25,19 @@ MENU_SIZE=10
 # scale factor for your DPI
 SCALE = '1'
 
+###### End of customization
+
 scale = float(SCALE)
 iconHeight = str(int(24 * scale))
 iconWidth = str(int(30 * scale))
+MENU_WIDTH =  18 # monospace chars
 
+if HAMSTER_VERSION is Version.ONE:
+    ADD_ACTIVITY_CMD="hamster add" # For hamster 2+
+else:
+    ADD_ACTIVITY_CMD="hamster" # For hamster 1.04
+
+import os
 import csv
 import itertools
 import functools
@@ -85,12 +101,19 @@ class Hamster():
 
 
     def header(self):
+        thisfile = os.path.abspath(__file__)
         print(f"Current activity | size={MENU_SIZE} | color={MENU_COLOR}")
+        begin = "<span font_family='monospace'>"
+        end = f"<b>+</b></span> | terminal=false refresh=true " \
+                 f"bash='{ADD_ACTIVITY_CMD}'"
         if self.active:
-            print(" ".join(self.current_full.split(',')[0].split()[2:]))
-            print("Stop Tracking | terminal=false refresh=true bash='hamster stop'")
+            txt = " ".join(self.current_full.split(',')[0].split()[2:])
         else:
-            print(self.current_activity)
+            txt = self.current_activity 
+        spaces = " " * (max(1, MENU_WIDTH-len(txt)))
+        print(f"{begin}{txt}{spaces}{end}")
+        if self.active:
+            print("Stop Tracking | terminal=false refresh=true bash='hamster stop'")
 
     def recent(self):
         print(f"Recent activities | size={MENU_SIZE} | color={MENU_COLOR}")
@@ -104,14 +127,26 @@ class Hamster():
         print("---")
         print("Show Overview | "
                 "terminal=false refresh=true bash='hamster overview'")
-        if ADD_ACTIVITY:
-            print("Add Earlier Activity | "
-                    "terminal=false refresh=true bash='hamster add'")
-        fulltotal = hamster("list").split("\n")[-1]
-        total = sum(map(
-            lambda x: float(x.split(':')[1][:-1]),
-            fulltotal.split(',')))
-        total = dec2sex(total)
+        if HAMSTER_VERSION == Version.ONE:
+            fulltotal = hamster("list").split("\n")[-1]
+            total = sum(map(
+                lambda x: float(x.split(':')[1][:-1]),
+                fulltotal.split(',')))
+            total = dec2sex(total)
+        else:
+            actlist = hamster("list").split("\n")[2:]
+            total = actlist[-1].split(':')[1].replace(' ','')[:-2]
+            # find end of array
+            for i,l in enumerate(actlist):
+                if l.startswith("------"):
+                    break
+            # Remove "in" de "min", remove empty hours and minutes, and spaces
+            fulltotal = ",".join(map(lambda x: x[:-2] 
+                                       .replace(" 0h","")\
+                                       .replace(" 0m","")\
+                                       .replace(" ",""),
+                                            actlist[i+1:-1]))
+
         print(f"<b>total</b>: {total} <small>({fulltotal})</small> | "
                 f"color={MENU_COLOR}")
 
