@@ -163,8 +163,9 @@ class Hamster():
                                        .replace(" ",""),
                                             actlist[i+1:-1]))
 
-        print(f"<b>total</b>: {total} <small>({fulltotal})</small> | "
-                f"color={MENU_COLOR}")
+        print(f"<b>total</b>: {total} "
+              + (f"<small>({fulltotal})</small>" if fulltotal else "")
+              + f" | color={MENU_COLOR}")
 
 
     def generate(self):
