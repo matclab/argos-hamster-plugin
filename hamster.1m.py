@@ -29,7 +29,7 @@ HAMSTER_VERSION  = Version.TWO
 # How many days to look back in the past in order to get past activities
 DAYS = 14
 # Whether to rank recent activities by age and frequency
-AGE_FREQUENCY_RANKING = True
+AGE_FREQUENCY_RANKING = False
 # Whether to include the description for recent activities
 USE_DESCRIPTION = False
 
@@ -92,8 +92,10 @@ def recent_activities():
             rank[fact] += DAYS - int((today - start).days)
         else:
             rank[fact] = 1
-    return [k for (v, k) in reversed(sorted(((v, k) for (k, v) in rank.items())))]
-
+    if AGE_FREQUENCY_RANKING:
+        return [k for (v, k) in reversed(sorted(((v, k) for (k, v) in rank.items())))]
+    else:
+        return list(sorted(rank))
 
 @dataclass
 class Hamster():
