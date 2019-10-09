@@ -150,7 +150,8 @@ class Hamster():
             total = dec2sex(total)
         else:
             actlist = hamster("list").split("\n")[2:]
-            total = actlist[-1].split(':')[1].replace(' ','')[:-2]
+            total = actlist[-1].split(':')[1][:-2]\
+                    .replace(" 0m","").replace(' ','') or "0h"
             # find end of array
             for i,l in enumerate(actlist):
                 if l.startswith("------"):
