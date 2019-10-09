@@ -31,7 +31,7 @@ DAYS = 14
 # Whether to rank recent activities by age and frequency
 AGE_FREQUENCY_RANKING = False
 # Whether to include the description for recent activities
-USE_DESCRIPTION = False
+USE_DESCRIPTION = True
 
 MENU_COLOR = "#919191"
 MENU_SIZE = 10
