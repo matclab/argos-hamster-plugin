@@ -44,7 +44,6 @@ scale = float(SCALE)
 iconHeight = str(int(24 * scale))
 iconWidth = str(int(30 * scale))
 MENU_WIDTH =  18 # monospace chars
-MENU_WIDTH_MAX =  40 # monospace chars
 
 if HAMSTER_VERSION is Version.TWO:
     ADD_ACTIVITY_CMD="hamster add" # For hamster 2+
