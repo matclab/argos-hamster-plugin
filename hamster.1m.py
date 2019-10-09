@@ -158,8 +158,9 @@ class Hamster():
                     break
             # Remove "in" de "min", remove empty hours and minutes, and spaces
             fulltotal = ",".join(map(lambda x: x[:-2]
-                                       .replace(" 0h","")\
+                                       .replace(" 0h 0m","0h")\
                                        .replace(" 0m","")\
+                                       .replace(" 0h","")\
                                        .replace(" ",""),
                                             actlist[i+1:-1]))
 
