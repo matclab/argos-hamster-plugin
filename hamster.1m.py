@@ -1,13 +1,22 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
+import os
+import csv
+import itertools
+import functools
+from subprocess import Popen, PIPE
+from datetime import date, timedelta, datetime
+from dataclasses import dataclass
+from collections import Counter
+
 from enum import Enum, auto
 class Version(Enum):
     ONE = auto()
     TWO = auto()
 
 
-##### Custommization
+##### Customization
 # Shall we use an icon instead of the current activity in the
 USE_ICON=False
 
@@ -18,10 +27,14 @@ HAMSTER_VERSION  = Version.TWO
 # HAMSTER_VERSION : Version.ONE
 
 # How many days to look back in the past in order to get past activities
-DAYS=14
+DAYS = 14
+# Whether to rank recent activities by age and frequency
+AGE_FREQUENCY_RANKING = True
+# Whether to include the description for recent activities
+USE_DESCRIPTION = False
 
-MENU_COLOR="#919191"
-MENU_SIZE=10
+MENU_COLOR = "#919191"
+MENU_SIZE = 10
 # scale factor for your DPI
 SCALE = '1'
 
@@ -31,19 +44,13 @@ scale = float(SCALE)
 iconHeight = str(int(24 * scale))
 iconWidth = str(int(30 * scale))
 MENU_WIDTH =  18 # monospace chars
+MENU_WIDTH_MAX =  40 # monospace chars
 
 if HAMSTER_VERSION is Version.TWO:
     ADD_ACTIVITY_CMD="hamster add" # For hamster 2+
 else:
     ADD_ACTIVITY_CMD="hamster" # For hamster 1.04
 
-import os
-import csv
-import itertools
-import functools
-from subprocess import Popen, PIPE
-from datetime import date, timedelta
-from dataclasses import dataclass
 
 def hamster(cmd, strip=True):
     proc = Popen(f"LC_ALL=C hamster {cmd}", stdout=PIPE, shell=True)
@@ -55,9 +62,6 @@ def hamster(cmd, strip=True):
     else:
         return res
 
-def sort_uniq(sequence):
-    return (x[0] for x in itertools.groupby(sorted(sequence)))
-
 def dec2sex(hd:int) -> str:
     m, s = divmod(hd*3600, 60)
     h, m = divmod(m, 60)
@@ -68,17 +72,28 @@ def dec2sex(hd:int) -> str:
     else:
         return f"{h}h"
 
-@functools.lru_cache()
+
 def recent_activities():
     """ Return a sequence of (activity, category, description, tags)
     corresponding to the last uniques activities seen DAYS before"""
-    now = date.today().isoformat()
+    today = date.today()
+    now = today.isoformat()
     before = (date.today() - timedelta(days=DAYS)).isoformat()
     act = hamster(f"export tsv {before} {now}", strip=False).split("\n")[1:-2]
-    act = csv.reader(act, delimiter="\t")
-    act = map(lambda x: (x[0], x[4], x[5], x[6]), act )
-    act = sort_uniq(act)
-    return act
+    rank = Counter()
+    for activity, start, end, duration, category, description, tags \
+        in csv.reader(act, delimiter="\t"):
+        d = ", " + description if description and USE_DESCRIPTION else ""
+        fact = f"{activity}@{category}{d} "
+        fact += "#%s" % " #".join(tags.split(', ')) if tags else ""
+        if AGE_FREQUENCY_RANKING:
+            # same rough age-frequency ranking used in hamster
+            start = datetime.strptime(start[:10], "%Y-%m-%d").date()
+            rank[fact] += DAYS - int((today - start).days)
+        else:
+            rank[fact] = 1
+    return [k for (v, k) in reversed(sorted(((v, k) for (k, v) in rank.items())))]
+
 
 @dataclass
 class Hamster():
@@ -91,7 +106,8 @@ class Hamster():
         self.current_full = hamster("current")
         self.current_activity = self.current_full
         if self.current_activity != "No activity":
-            self.current_activity = self.current_full.split(',')[0].split()[2]
+            a = " ".join(self.current_full.split('@')[0].split()[2:]) # activity
+            self.current_activity = a + " " + self.current_full[-5:]  # time
             self.active = True
         if USE_ICON:
             print(f" |image={ICON} imageHeight={iconHeight} imageWidth={iconWidth}")
@@ -117,11 +133,9 @@ class Hamster():
 
     def recent(self):
         print(f"Recent activities | size={MENU_SIZE} | color={MENU_COLOR}")
-        for a in recent_activities():
-            l = "#%s" % " #".join(a[3].split(',')) if a[3] else ""
-            print(f"-- {a[0]}@{a[1]}, {a[2]} {l}  "
-                    " | terminal=false refresh=true "
-                    f"bash=\'hamster start \"{a[0]}@{a[1]}, {a[2]} {l}\"\'")
+        for fact in recent_activities():
+            print(f"-- {fact} | terminal=false refresh=true "
+                  f"bash=\'hamster start \"{fact}\"\'")
 
     def footer(self ):
         print("---")
