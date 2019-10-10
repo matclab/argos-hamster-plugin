@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 import os
+import sys
 import csv
 import itertools
 import functools
@@ -9,6 +10,7 @@ from subprocess import Popen, PIPE
 from datetime import date, timedelta, datetime
 from dataclasses import dataclass
 from collections import Counter
+from xdg.BaseDirectory import xdg_data_home
 
 from enum import Enum, auto
 class Version(Enum):
@@ -45,10 +47,16 @@ iconHeight = str(int(24 * scale))
 iconWidth = str(int(30 * scale))
 MENU_WIDTH =  18 # monospace chars
 
+# command to wait for change to hamster.db then touch this script
+dbpath = os.path.join(xdg_data_home, 'hamster-applet', 'hamster.db')
+script = '~/.config/argos/' + os.path.basename(sys.argv[0])
+touchScript = f'&& inotifywait "{dbpath}" -e modify | touch {script}'
+
+
 if HAMSTER_VERSION is Version.TWO:
-    ADD_ACTIVITY_CMD="hamster add" # For hamster 2+
+    ADD_ACTIVITY_CMD = "hamster add" + touchScript # For hamster 2+
 else:
-    ADD_ACTIVITY_CMD="hamster" # For hamster 1.04
+    ADD_ACTIVITY_CMD = "hamster" + touchScript # For hamster 1.04
 
 
 def hamster(cmd, strip=True):
@@ -102,7 +110,6 @@ class Hamster():
     current_activity: str = ''
     active: bool = False
 
-
     def task_bar(self):
         self.current_full = hamster("current")
         self.current_activity = self.current_full
@@ -130,18 +137,19 @@ class Hamster():
         spaces = " " * (max(1, MENU_WIDTH-len(txt)))
         print(f"{begin}{txt}{spaces}{end}")
         if self.active:
-            print("Stop Tracking | terminal=false refresh=true bash='hamster stop'")
+            print("Stop Tracking | terminal=false refresh=true"
+                  " bash='hamster stop {touchScript}'")
 
     def recent(self):
         print(f"Recent activities | size={MENU_SIZE} | color={MENU_COLOR}")
         for fact in recent_activities():
             print(f"-- {fact} | terminal=false refresh=true "
-                  f"bash=\'hamster start \"{fact}\"\'")
+                  f"bash=\'hamster start \"{fact}\" {touchScript}\'")
 
     def footer(self ):
         print("---")
-        print("Show Overview | "
-                "terminal=false refresh=true bash='hamster overview'")
+        print("Show Overview | terminal=false"
+              " refresh=true bash='hamster overview {touchScript}'")
         if HAMSTER_VERSION == Version.ONE:
             fulltotal = hamster("list").split("\n")[-1]
             total = sum(map(
