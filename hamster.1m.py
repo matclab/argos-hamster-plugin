@@ -141,14 +141,13 @@ class Hamster():
         spaces = " " * (max(1, MENU_WIDTH-len(txt)))
         print(f"{begin}{txt}{spaces}{end}")
         if self.active:
-            print("Stop Tracking | terminal=false refresh=true"
-                  " bash='hamster stop {touchScript}'")
+            print("Stop Tracking | terminal=false refresh=true bash='hamster stop'")
 
     def recent(self):
         print(f"Recent activities | size={MENU_SIZE} | color={MENU_COLOR}")
         for fact in recent_activities():
             print(f"-- {fact} | terminal=false refresh=true "
-                  f"bash=\'hamster start \"{fact}\" {touchScript}\'")
+                  f"bash=\'hamster start \"{fact}\"\'")
 
     def footer(self ):
         print("---")
