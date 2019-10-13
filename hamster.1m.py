@@ -50,7 +50,7 @@ MENU_WIDTH =  18 # monospace chars
 # command to wait for change to hamster.db then touch this script
 dbpath = os.path.join(xdg_data_home, 'hamster-applet', 'hamster.db')
 script = '~/.config/argos/' + os.path.basename(sys.argv[0])
-touchScript = f'&& inotifywait "{dbpath}" -e modify | touch {script}'
+touchScript = f'&& inotifywait "{dbpath}" -e modify ; touch {script}'
 
 
 if HAMSTER_VERSION is Version.TWO:
