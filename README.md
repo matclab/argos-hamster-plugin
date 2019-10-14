@@ -10,8 +10,8 @@ time tracker](https://github.com/projecthamster/hamster)
 
 If you have `inotifywait` installed, the script will force a refresh by 
 changing the script creation time after an event is created with the *hamster* 
-UI when launched from this argos script.
-
+UI when launched from this argos script (else you will have to wait the 1m 
+timer expiration for the display to be refreshed with the current action name)
 
 # Configuring
 Check the beginning of the file and tweak to your taste
