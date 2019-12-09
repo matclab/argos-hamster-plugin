@@ -52,7 +52,7 @@ if which("inotifywait"):
 # command to wait for change to hamster.db then touch this script
     dbpath = os.path.join(xdg_data_home, 'hamster-applet', 'hamster.db')
     script = '~/.config/argos/' + os.path.basename(sys.argv[0])
-    touchScript = f'&& inotifywait "{dbpath}" -e modify ; touch {script}'
+    touchScript = f'; inotifywait "{dbpath}" -e modify ; touch {script}'
 else:
     touchScript = ""
 
