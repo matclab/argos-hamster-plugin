@@ -94,9 +94,11 @@ def recent_activities():
     rank = Counter()
     for activity, start, end, duration, category, description, tags \
         in csv.reader(act, delimiter="\t"):
-        d = ", " + description if description and USE_DESCRIPTION else ""
-        fact = f"{activity}@{category}{d} "
-        fact += "#%s" % " #".join(tags.split(', ')) if tags else ""
+        desctxt = ", " + description if description and USE_DESCRIPTION else ""
+        fact = f"{activity}@{category}{desctxt} "
+        tagtxt = " #%s" % " #".join(tags.split(', ')) if tags else ""
+        # Build fact txt without spurious comma
+        fact =  f"{fact}{tagtxt}" if desctxt else ','.join(filter(None,(fact, tagtxt)))
         if AGE_FREQUENCY_RANKING:
             # same rough age-frequency ranking used in hamster
             start = datetime.strptime(start[:10], "%Y-%m-%d").date()
